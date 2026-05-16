@@ -96,7 +96,7 @@ const send = async (text?: string) => {
     sessionId = res.session_id
     messages.value.push({ role:'assistant', content:res.answer })
     if (res.handoff) messages.value.push({ role:'system', content:t.value.handoffMsg })
-  } catch { messages.value.push({ role:'assistant', content:'抱歉，服务暂时不可用' }) }
+  } catch { messages.value.push({ role:'assistant', content:t.value.errorMsg }) }
   loading.value = false
   await nextTick(); scrollBottom()
 }
