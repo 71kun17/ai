@@ -2,7 +2,7 @@
   <div class="embed-root">
     <div class="embed-header">
       <span>🤖 {{ t.header }}</span>
-      <el-select v-model="lang" size="small" style="width:100px" @change="switchLang">
+      <el-select v-model="lang" size="small" style="width:100px">
         <el-option v-for="l in languages" :key="l.value" :label="l.label" :value="l.value" />
       </el-select>
     </div>
@@ -29,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { chatApi } from '@/api'
+import { useRoute, useRouter } from 'vue-router'
 import MarkdownIt from 'markdown-it'
 
 const md = new MarkdownIt({ breaks: true })
@@ -65,12 +66,24 @@ const languages = [
   { label:'🇰🇷 한국어',value:'ko'},{ label:'🇫🇷 FR',value:'fr'},{ label:'🇪🇸 ES',value:'es'},{ label:'🇩🇪 DE',value:'de'},
 ]
 
-const lang = ref('zh')
-const t = reactive(translations['zh'])
-const quickQuestions = ref(quickQuestionsMap['zh'])
+const route = useRoute()
+const router = useRouter()
+const supported = ['zh','en','ja','ko','fr','es','de']
+
+const lang = computed({
+  get: () => {
+    const p = route.params.lang as string
+    return (p && supported.includes(p)) ? p : 'zh'
+  },
+  set: (v: string) => {
+    router.replace({ params: { lang: v } })
+  }
+})
+const t = computed(() => translations[lang.value])
+const quickQuestions = computed(() => quickQuestionsMap[lang.value])
 let sessionId = ''
 
-const switchLang = () => { Object.assign(t, translations[lang.value]); quickQuestions.value = quickQuestionsMap[lang.value] }
+
 
 const send = async (text?: string) => {
   const msg = text || input.value.trim()

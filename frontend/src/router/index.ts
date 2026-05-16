@@ -1,10 +1,9 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', component: () => import('@/views/ChatWidget.vue') },
-    { path: '/embed', component: () => import('@/views/EmbedWidget.vue') },
+    { path: '/embed/:lang?', component: () => import('@/views/EmbedWidget.vue') },
     {
       path: '/amazon',
       component: () => import('@/views/AmazonAssistant.vue'),
@@ -21,7 +20,8 @@ const router = createRouter({
         { path: 'store-profile', component: () => import('@/views/admin/StoreProfileView.vue') },
         { path: 'config', component: () => import('@/views/admin/ConfigView.vue') },
       ]
-    }
+    },
+    { path: '/:lang?', component: () => import('@/views/ChatWidget.vue') },
   ]
 })
 export default router
