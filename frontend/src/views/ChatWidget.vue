@@ -190,10 +190,10 @@ const send = async (text?: string) => {
     sessionId = res.session_id
     messages.value.push({ role: 'assistant', content: res.answer, sources: res.sources })
     if (res.handoff) {
-      messages.value.push({ role: 'system', content: t.handoffMsg })
+      messages.value.push({ role: 'system', content: t.value.handoffMsg })
     }
   } catch {
-    messages.value.push({ role: 'assistant', content: t.errorMsg })
+    messages.value.push({ role: 'assistant', content: t.value.errorMsg })
   }
   loading.value = false
   await nextTick()

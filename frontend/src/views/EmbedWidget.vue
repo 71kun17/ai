@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, computed } from 'vue'
 import { chatApi } from '@/api'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownIt from 'markdown-it'
@@ -95,7 +95,7 @@ const send = async (text?: string) => {
     const res = (await chatApi.send({ session_id:sessionId, message:msg, lang:lang.value })).data
     sessionId = res.session_id
     messages.value.push({ role:'assistant', content:res.answer })
-    if (res.handoff) messages.value.push({ role:'system', content:t.handoffMsg })
+    if (res.handoff) messages.value.push({ role:'system', content:t.value.handoffMsg })
   } catch { messages.value.push({ role:'assistant', content:'抱歉，服务暂时不可用' }) }
   loading.value = false
   await nextTick(); scrollBottom()
