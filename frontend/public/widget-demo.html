@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Widget Demo</title>
+<style>
+  /* ===== 浮动气泡样式 ===== */
+  #chat-bubble-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, #409eff, #337ecc);
+    color: #fff; border: none; cursor: pointer;
+    font-size: 28px; box-shadow: 0 4px 16px rgba(64,158,255,0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s;
+  }
+  #chat-bubble-btn:hover { transform: scale(1.1); }
+  #chat-bubble-btn .close-icon { display: none; }
+  #chat-bubble-btn.open .chat-icon { display: none; }
+  #chat-bubble-btn.open .close-icon { display: inline; }
+
+  #chat-window {
+    position: fixed; bottom: 96px; right: 24px; z-index: 9998;
+    width: 400px; height: 560px; max-height: calc(100vh - 120px);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    display: none; border: 1px solid #e4e7ed;
+  }
+  #chat-window.open { display: block; }
+  #chat-window iframe { width: 100%; height: 100%; border: none; }
+
+  @media (max-width: 480px) {
+    #chat-window { width: calc(100vw - 40px); right: 20px; height: 480px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 你的独立站内容放这里 ===== -->
+<div style="max-width:800px;margin:60px auto;padding:20px;font-family:sans-serif">
+  <h1>🛒 我的独立站</h1>
+  <p>这是一个演示页面。右下角的聊天气泡就是嵌入的智能客服。</p>
+  <p>将下面两段代码复制到你的网站即可：</p>
+  
+  <h3>方式一：ifame 嵌入（页面内嵌）</h3>
+  <pre style="background:#f5f7fa;padding:16px;border-radius:8px;overflow-x:auto"><code>&lt;iframe
+  src="http://localhost:5173/embed"
+  style="width:100%;height:500px;border:none;border-radius:12px"
+  allow="clipboard-write"
+&gt;&lt;/iframe&gt;</code></pre>
+
+  <h3>方式二：浮动气泡（右下角）</h3>
+  <p>你正在看的右下角就是。代码见下方。</p>
+</div>
+
+<!-- ===== 浮动气泡代码（复制到任何网页的 &lt;/body&gt; 前即可） ===== -->
+<button id="chat-bubble-btn" onclick="toggleChat()">
+  <span class="chat-icon">💬</span>
+  <span class="close-icon">✕</span>
+</button>
+<div id="chat-window">
+  <iframe src="http://localhost:5173/embed" allow="clipboard-write"></iframe>
+</div>
+
+<script>
+  function toggleChat() {
+    var btn = document.getElementById('chat-bubble-btn');
+    var win = document.getElementById('chat-window');
+    btn.classList.toggle('open');
+    win.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
