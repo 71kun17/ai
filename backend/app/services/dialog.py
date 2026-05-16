@@ -139,7 +139,7 @@ RAG_PROMPT = """{store_context}
 
 【回复】"""
 
-HANDOFF_KEYWORDS = ["投诉", "退款纠纷", "举报", "欺诈", "诈骗", "赔偿", "法律", "起诉"]
+HANDOFF_KEYWORDS = ["转人工", "人工客服", "投诉", "退款纠纷", "举报", "欺诈", "诈骗", "赔偿", "法律", "起诉"]
 
 async def should_handoff(user_message: str, failed_attempts: int = 0) -> bool:
     if failed_attempts >= 3:
@@ -279,3 +279,10 @@ async def generate_answer(user_message: str, intent: dict, history: list = None,
         "sources": [{"id": r["id"], "similarity": r["similarity"]} for r in kb_results],
         "kb_matched": len(kb_results) > 0
     }
+
+
+
+
+
+
+

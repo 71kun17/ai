@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+﻿import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -19,6 +19,7 @@ const router = createRouter({
         { path: 'conversations', component: () => import('@/views/admin/Conversations.vue') },
         { path: 'store-profile', component: () => import('@/views/admin/StoreProfileView.vue') },
         { path: 'config', component: () => import('@/views/admin/ConfigView.vue') },
+        { path: 'handoff', component: () => import('@/views/admin/HandoffChat.vue') },
         { path: 'platforms/config', component: () => import('@/views/admin/PlatformConfigView.vue') },
         { path: 'platforms/review', component: () => import('@/views/admin/PlatformReviewView.vue') },
         { path: 'platforms/stats', component: () => import('@/views/admin/PlatformStatsView.vue') },
@@ -28,3 +29,4 @@ const router = createRouter({
   ]
 })
 export default router
+

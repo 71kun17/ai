@@ -13,6 +13,10 @@
           <el-icon><Collection /></el-icon>
           <span>{{ ts.knowledge }}</span>
         </el-menu-item>
+        <el-menu-item index="/admin/handoff">
+          <el-icon><Headset /></el-icon>
+          <span>{{ ts.handoff }}</span>
+        </el-menu-item>
         <el-menu-item index="/admin/conversations">
           <el-icon><ChatDotRound /></el-icon>
           <span>{{ ts.conversations }}</span>
@@ -70,18 +74,19 @@ fetchPending()
 setInterval(fetchPending, 30000)
 
 const langMessages: Record<string, Record<string, string>> = {
-  zh: { header: '客服管理后台', storeProfile: '店铺画像', dashboard: '数据看板', knowledge: '知识库管理', conversations: '对话记录', config: 'API配置', platforms: '平台管理', platConfig: '凭证配置', platReview: '待审核消息', platStats: '自动回复统计', back: '返回聊天' },
-  en: { header: 'Admin Panel', storeProfile: 'Store Profile', dashboard: 'Dashboard', knowledge: 'Knowledge Base', conversations: 'Conversations', config: 'API Config', platforms: 'Platforms', platConfig: 'API Credentials', platReview: 'Review Queue', platStats: 'Reply Stats', back: 'Back to Chat' },
-  ja: { header: '管理パネル', dashboard: 'ダッシュボード', knowledge: 'ナレッジベース', conversations: '会話記録', config: 'API設定', back: 'チャットに戻る' },
-  ko: { header: '관리자 패널', dashboard: '대시보드', knowledge: '지식 베이스', conversations: '대화 기록', config: 'API 설정', back: '채팅으로 돌아가기' },
-  fr: { header: 'Panneau Admin', dashboard: 'Tableau de bord', knowledge: 'Base de connaissances', conversations: 'Conversations', config: 'API Config', back: 'Retour au chat' },
-  es: { header: 'Panel Admin', dashboard: 'Panel', knowledge: 'Base de conocimiento', conversations: 'Conversaciones', config: 'Configuración API', back: 'Volver al chat' },
-  de: { header: 'Admin-Panel', dashboard: 'Dashboard', knowledge: 'Wissensdatenbank', conversations: 'Gespräche', config: 'API-Konfig', back: 'Zurück zum Chat' },
+  zh: { handoff: '人工客服', header: '客服管理后台', storeProfile: '店铺画像', dashboard: '数据看板', knowledge: '知识库管理', conversations: '对话记录', config: 'API配置', platforms: '平台管理', platConfig: '凭证配置', platReview: '待审核消息', platStats: '自动回复统计', back: '返回聊天' },
+  en: { handoff: 'Live Chat', header: 'Admin Panel', storeProfile: 'Store Profile', dashboard: 'Dashboard', knowledge: 'Knowledge Base', conversations: 'Conversations', config: 'API Config', platforms: 'Platforms', platConfig: 'API Credentials', platReview: 'Review Queue', platStats: 'Reply Stats', back: 'Back to Chat' },
+  ja: { handoff: 'ライブチャット', header: '管理パネル', dashboard: 'ダッシュボード', knowledge: 'ナレッジベース', conversations: '会話記録', config: 'API設定', back: 'チャットに戻る' },
+  ko: { handoff: '실시간 채팅', header: '관리자 패널', dashboard: '대시보드', knowledge: '지식 베이스', conversations: '대화 기록', config: 'API 설정', back: '채팅으로 돌아가기' },
+  fr: { handoff: 'Chat en direct', header: 'Panneau Admin', dashboard: 'Tableau de bord', knowledge: 'Base de connaissances', conversations: 'Conversations', config: 'API Config', back: 'Retour au chat' },
+  es: { handoff: 'Chat en vivo', header: 'Panel Admin', dashboard: 'Panel', knowledge: 'Base de conocimiento', conversations: 'Conversaciones', config: 'Configuración API', back: 'Volver al chat' },
+  de: { handoff: 'Live-Chat', header: 'Admin-Panel', dashboard: 'Dashboard', knowledge: 'Wissensdatenbank', conversations: 'Gespräche', config: 'API-Konfig', back: 'Zurück zum Chat' },
 }
 
 const titleMap: Record<string, Record<string, string>> = {
   '/admin': { zh: '数据看板', en: 'Dashboard', ja: 'ダッシュボード', ko: '대시보드', fr: 'Tableau de bord', es: 'Panel', de: 'Dashboard' },
   '/admin/knowledge': { zh: '知识库管理', en: 'Knowledge Base', ja: 'ナレッジベース', ko: '지식 베이스', fr: 'Base de connaissances', es: 'Base de conocimiento', de: 'Wissensdatenbank' },
+  '/admin/handoff': { zh: '人工客服', en: 'Live Chat', ja: 'ライブチャット', ko: '실시간 채팅', fr: 'Chat en direct', es: 'Chat en vivo', de: 'Live-Chat' },
   '/admin/conversations': { zh: '对话记录', en: 'Conversations', ja: '会話記録', ko: '대화 기록', fr: 'Conversations', es: 'Conversaciones', de: 'Gespräche' },
 }
 
@@ -98,6 +103,14 @@ const pageTitle = computed(() => (titleMap[route.path] || {})[lang.value] || tit
 watch(lang, (v) => { Object.assign(ts, langMessages[v]) })
 
 </script>
+
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-import axios from 'axios'
+﻿import axios from 'axios'
 
 const api = axios.create({ baseURL: '/api' })
 
@@ -33,7 +33,18 @@ export const configApi = {
   updateLLM: (data: { llm_api_key: string; llm_base_url: string; llm_model: string }) => api.put('/config/llm', data),
 }
 
+export const handoffApi = {
+  queue: () => fetch('/api/chat/handoff/queue').then(r => r.json()),
+  takeover: (data: { session_id: string; admin_name?: string }) => api.post('/chat/handoff/takeover', data),
+  reply: (data: { session_id: string; message: string; admin_name?: string }) => api.post('/chat/handoff/reply', data),
+  resolve: (data: { session_id: string; admin_name?: string }) => api.post('/chat/handoff/resolve', data),
+  messages: (sessionId: string) => fetch(`/api/chat/handoff/${sessionId}/messages`).then(r => r.json()),
+  poll: (sessionId: string, afterId: number) => fetch(`/api/chat/handoff/${sessionId}/poll?after_id=${afterId}`).then(r => r.json()),
+}
+
 export const storeApi = {
   getProfile: () => api.get('/store/profile'),
   updateProfile: (data: any) => api.put('/store/profile', data),
 }
+
+

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+﻿from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.config import settings
 
@@ -18,6 +18,7 @@ def init_db():
     import app.models.conversation
     import app.models.store_profile
     import app.models.platform
+    import app.models.handoff
     Base.metadata.create_all(bind=engine)
     from app.services.vector_store import vector_store
     from app.models.knowledge import Knowledge
@@ -28,3 +29,4 @@ def init_db():
             vector_store.rebuild_from_db(items)
     finally:
         db.close()
+
