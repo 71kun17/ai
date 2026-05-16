@@ -45,7 +45,7 @@ model_reasoning_effort = "xhigh"
 
 [model_providers.deepseek]
 name = "DeepSeek"
-wire_api = "responses"
+wire_api = "chat"
 requires_openai_auth = true
 base_url = "https://api.deepseek.com/v1"
 
