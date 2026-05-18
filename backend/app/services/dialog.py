@@ -27,6 +27,8 @@ RAG_PROMPTS = {
     "en": """{store_context}
 You are a professional e-commerce customer service assistant. Answer strictly based on the following reference materials.
 
+IMPORTANT: You MUST reply in English only, regardless of the language of the reference materials or store information.
+
 [Reference Materials]
 {context}
 
@@ -35,13 +37,16 @@ You are a professional e-commerce customer service assistant. Answer strictly ba
 2. If the materials are insufficient, honestly state so and suggest human support
 3. Maintain a friendly, professional tone
 4. Keep answers concise
+5. Always respond in English
 
 [User Question]
 {question}
 
-[Response]""",
+[Response in English]""",
     "ja": """{store_context}
 あなたはプロのECカスタマーサービスアシスタントです。以下の参考資料に厳密に基づいて回答してください。
+
+重要: 必ず日本語のみで回答してください。参考資料の言語に関わらず、日本語で返信すること。
 
 【参考資料】
 {context}
@@ -51,13 +56,16 @@ You are a professional e-commerce customer service assistant. Answer strictly ba
 2. 資料が不十分な場合は正直に伝え、有人対応を提案してください
 3. 親しみやすくプロフェッショナルな口調を保ってください
 4. 簡潔に回答してください
+5. 常に日本語で回答すること
 
 【ユーザー質問】
 {question}
 
-【回答】""",
+【日本語で回答】""",
     "ko": """{store_context}
 당신은 전문 전자상거래 고객 서비스 어시스턴트입니다. 다음 참고 자료에 기반하여 답변하세요.
+
+중요: 반드시 한국어로만 답변해야 합니다. 참고 자료의 언어와 관계없이 한국어로 답변하세요.
 
 [참고 자료]
 {context}
@@ -67,13 +75,16 @@ You are a professional e-commerce customer service assistant. Answer strictly ba
 2. 자료가 불충분하면 솔직히 알리고 상담원 연결을 제안하세요
 3. 친절하고 전문적인 어조를 유지하세요
 4. 간결하게 답변하세요
+5. 항상 한국어로 답변할 것
 
 [사용자 질문]
 {question}
 
-[답변]""",
+[한국어 답변]""",
     "fr": """{store_context}
 Vous êtes un assistant professionnel du service client e-commerce. Répondez strictement sur la base des documents de référence.
+
+IMPORTANT: Vous devez répondre UNIQUEMENT en français, quelle que soit la langue des documents de référence.
 
 [Documents de référence]
 {context}
@@ -83,13 +94,16 @@ Vous êtes un assistant professionnel du service client e-commerce. Répondez st
 2. Si les documents sont insuffisants, indiquez-le honnêtement et suggérez une assistance humaine
 3. Gardez un ton amical et professionnel
 4. Soyez concis
+5. Répondez toujours en français
 
 [Question de l'utilisateur]
 {question}
 
-[Réponse]""",
+[Réponse en français]""",
     "es": """{store_context}
 Eres un asistente profesional de atención al cliente de e-commerce. Responde estrictamente basándote en los materiales de referencia.
+
+IMPORTANTE: Debes responder SOLO en español, independientemente del idioma de los materiales de referencia.
 
 [Materiales de referencia]
 {context}
@@ -99,13 +113,16 @@ Eres un asistente profesional de atención al cliente de e-commerce. Responde es
 2. Si los materiales son insuficientes, indícalo honestamente y sugiere asistencia humana
 3. Mantén un tono amable y profesional
 4. Sé conciso
+5. Responde siempre en español
 
 [Pregunta del usuario]
 {question}
 
-[Respuesta]""",
+[Respuesta en español]""",
     "de": """{store_context}
 Du bist ein professioneller E-Commerce-Kundendienst-Assistent. Antworte ausschließlich auf Basis der Referenzmaterialien.
+
+WICHTIG: Du musst NUR auf Deutsch antworten, unabhängig von der Sprache der Referenzmaterialien.
 
 [Referenzmaterialien]
 {context}
@@ -115,11 +132,12 @@ Du bist ein professioneller E-Commerce-Kundendienst-Assistent. Antworte ausschli
 2. Wenn die Materialien nicht ausreichen, gib dies ehrlich zu und schlage menschliche Hilfe vor
 3. Bewahre einen freundlichen, professionellen Ton
 4. Halte die Antworten knapp
+5. Antworte immer auf Deutsch
 
 [Benutzerfrage]
 {question}
 
-[Antwort]""",
+[Antwort auf Deutsch]""",
 }
 
 RAG_PROMPT = """{store_context}
@@ -139,13 +157,35 @@ RAG_PROMPT = """{store_context}
 
 【回复】"""
 
-HANDOFF_KEYWORDS = ["转人工", "人工客服", "投诉", "退款纠纷", "举报", "欺诈", "诈骗", "赔偿", "法律", "起诉"]
+HANDOFF_KEYWORDS_ZH = ["转人工", "人工客服", "投诉", "退款纠纷", "举报", "欺诈", "诈骗", "赔偿", "法律", "起诉"]
+HANDOFF_KEYWORDS_EN = ["transfer to human", "human agent", "speak to human", "talk to agent", "real person", "complaint", "refund dispute", "fraud", "scam"]
+HANDOFF_KEYWORDS_JA = ["オペレーター", "有人対応", "転送", "人間", "苦情"]
+HANDOFF_KEYWORDS_KO = ["상담원", "직원 연결", "전송", "사람"]
+HANDOFF_KEYWORDS_FR = ["parler à un humain", "agent humain", "transférer", "plainte"]
+HANDOFF_KEYWORDS_ES = ["hablar con un humano", "agente humano", "transferir", "queja"]
+HANDOFF_KEYWORDS_DE = ["mitarbeiter sprechen", "menschlicher agent", "weiterleiten", "beschwerde"]
 
-async def should_handoff(user_message: str, failed_attempts: int = 0) -> bool:
+HANDOFF_KEYWORDS = HANDOFF_KEYWORDS_ZH  # legacy default
+
+async def should_handoff(user_message: str, failed_attempts: int = 0, lang: str = "zh") -> bool:
     if failed_attempts >= 3:
         return True
-    for kw in HANDOFF_KEYWORDS:
-        if kw in user_message:
+    msg_lower = user_message.lower()
+    kw_map = {
+        "zh": HANDOFF_KEYWORDS_ZH,
+        "en": HANDOFF_KEYWORDS_EN,
+        "ja": HANDOFF_KEYWORDS_JA,
+        "ko": HANDOFF_KEYWORDS_KO,
+        "fr": HANDOFF_KEYWORDS_FR,
+        "es": HANDOFF_KEYWORDS_ES,
+        "de": HANDOFF_KEYWORDS_DE,
+    }
+    # Check all keyword sets for maximum compatibility
+    all_keywords = HANDOFF_KEYWORDS_ZH  # always check Chinese too
+    if lang in kw_map:
+        all_keywords = kw_map[lang] + HANDOFF_KEYWORDS_ZH
+    for kw in all_keywords:
+        if kw.lower() in msg_lower:
             return True
     return False
 

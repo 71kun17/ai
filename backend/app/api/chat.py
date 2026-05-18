@@ -68,7 +68,7 @@ async def send_message(req: ChatRequest, db: Session = Depends(get_db)):
 
     intent = await recognize_intent(req.message, history, req.lang)
 
-    should = await should_handoff(req.message, session["failed_count"])
+    should = await should_handoff(req.message, session["failed_count"], req.lang)
     if should:
         answer = "您的问题需要人工客服协助处理，正在为您转接，请稍候..."
         session["history"].append({"role": "user", "content": req.message})

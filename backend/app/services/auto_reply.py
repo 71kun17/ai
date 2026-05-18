@@ -44,7 +44,7 @@ class AutoReplyEngine:
             )
 
             kb_score = self._calc_kb_score(result)
-            handoff = await should_handoff(msg.content, 0)
+            handoff = await should_handoff(msg.content, 0, self._detect_lang(msg.content))
             intent_score = 0.5
             final_confidence = kb_score * 0.6 + (1 - int(handoff)) * 0.4
 
