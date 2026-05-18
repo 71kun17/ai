@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 from app.config import settings
@@ -6,6 +6,7 @@ from app.models.database import init_db, SessionLocal
 from app.models.platform import PlatformConfig
 from app.services.auto_reply import AutoReplyEngine
 from app.adapters.shopee import ShopeeAdapter
+from app.adapters.ozon import OzonAdapter
 from app.api import knowledge, chat, analytics, config_api, store_api, amazon, platform
 
 app = FastAPI(title=settings.APP_NAME)
@@ -35,7 +36,14 @@ async def poll_platform(config_id: int):
         config = db.query(PlatformConfig).filter(PlatformConfig.id == config_id).first()
         if not config or not config.is_active:
             return
-        adapter = ShopeeAdapter({
+        if config.platform_name == 'ozon':
+            adapter = OzonAdapter({
+                'api_key': config.api_key,
+                'api_secret': config.api_secret,
+                'shop_id': config.shop_id
+            })
+        else:
+            adapter = ShopeeAdapter({
             "api_key": config.api_key,
             "api_secret": config.api_secret,
             "shop_id": config.shop_id,

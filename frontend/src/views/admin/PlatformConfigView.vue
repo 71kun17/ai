@@ -25,6 +25,24 @@
     </el-card>
 
     <el-card style="margin-top:20px">
+      <template #header>Ozon Seller API 配置</template>
+      <el-form :model="ozonForm" label-width="140px" @submit.prevent="saveOzon">
+        <el-form-item label="Client-Id">
+          <el-input v-model="ozonForm.api_key" placeholder="Ozon API Client-Id" />
+        </el-form-item>
+        <el-form-item label="Api-Key">
+          <el-input v-model="ozonForm.api_secret" type="password" placeholder="Ozon API Key" show-password />
+        </el-form-item>
+        <el-form-item label="轮询间隔(秒)">
+          <el-input-number v-model="ozonForm.poll_interval" :min="10" :max="300" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="saveOzon" :loading="saving">保存配置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card style="margin-top:20px">
       <template #header>已接入平台</template>
       <el-table :data="platforms" stripe>
         <el-table-column prop="platform_name" label="平台标识" />
@@ -48,6 +66,7 @@ import { configApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const form = ref({ api_key: '', api_secret: '', shop_id: '', poll_interval: 30 })
+const ozonForm = ref({ api_key: '', api_secret: '', poll_interval: 30 })
 const platforms = ref<any[]>([])
 const saving = ref(false)
 
@@ -71,6 +90,29 @@ const save = async () => {
         api_secret: form.value.api_secret,
         shop_id: form.value.shop_id,
         poll_interval: form.value.poll_interval
+      })
+    })
+    ElMessage.success('保存成功，重启后端后生效')
+    await load()
+  } catch {
+    ElMessage.error('保存失败')
+  }
+  saving.value = false
+}
+
+const saveOzon = async () => {
+  saving.value = true
+  try {
+    await fetch('/api/platforms/ozon/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        platform_name: 'ozon',
+        display_name: 'Ozon',
+        api_key: ozonForm.value.api_key,
+        api_secret: ozonForm.value.api_secret,
+        shop_id: '',
+        poll_interval: ozonForm.value.poll_interval
       })
     })
     ElMessage.success('保存成功，重启后端后生效')
