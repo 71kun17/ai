@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8000';
+﻿const API_BASE = 'http://124.221.93.157:8000';
 
 const toggle = document.getElementById('toggle');
 const langSelect = document.getElementById('lang');
@@ -31,7 +31,7 @@ async function checkBackend() {
       throw new Error();
     }
   } catch {
-    statusEl.textContent = '❌ 后端未启动 (127.0.0.1:8000)';
+    statusEl.textContent = '❌ 后端未启动 (124.221.93.157:8000)';
     statusEl.className = 'status err';
   }
 }

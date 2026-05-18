@@ -1,10 +1,11 @@
-{
+﻿{
   "manifest_version": 3,
   "name": "AI客服助手 - 多平台自动回复",
-  "version": "1.0.0",
-  "description": "虾皮/亚马逊等电商平台买家消息自动AI回复",
+  "version": "1.0.1",
+  "description": "虾皮/Ozon等电商平台买家消息自动AI回复",
   "permissions": ["storage"],
   "host_permissions": [
+    "*://seller.ozon.ru/*",
     "*://seller.shopee.tw/*",
     "*://seller.shopee.cn/*",
     "*://seller.shopee.sg/*",
@@ -26,6 +27,7 @@
   "content_scripts": [
     {
       "matches": [
+        "*://seller.ozon.ru/*",
         "*://seller.shopee.tw/*",
         "*://seller.shopee.cn/*",
         "*://seller.shopee.sg/*",
