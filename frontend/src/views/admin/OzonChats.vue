@@ -19,7 +19,7 @@
           <el-tag size="small" :type="chat.chat_type === 'SELLER_SUPPORT' ? 'primary' : 'info'">
             {{ chat.chat_type || '未知' }}
           </el-tag>
-          <el-badge v-if="chat.unread_count" :value="chat.unread_count" type="danger" />
+          <el-badge v-if="chat.unread_count && !viewedChats.has(chat.chat_id)" :value="chat.unread_count" type="danger" />
         </div>
         <div style="font-size:12px;color:#909399;margin-top:4px">{{ chat.chat_id?.slice(0, 16) }}...</div>
         <div style="font-size:12px;color:#c0c4cc">{{ chat.created_at?.slice(0, 16)?.replace('T', ' ') }}</div>
@@ -80,6 +80,7 @@ const chats = ref<Chat[]>([])
 const messages = ref<Msg[]>([])
 const selectedChat = ref('')
 const totalUnread = ref(0)
+const viewedChats = ref<Set<string>>(new Set(JSON.parse(localStorage.getItem('ozon_viewed') || '[]')))
 const loading = ref(false)
 const msgBox = ref<HTMLElement>()
 
@@ -157,4 +158,5 @@ onMounted(loadChats)
 .msg-order { font-size: 11px; color: #409eff; margin-top: 4px; }
 .msg-image { font-size: 11px; color: #e6a23c; margin-top: 4px; }
 </style>
+
 

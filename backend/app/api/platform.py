@@ -309,10 +309,14 @@ async def ozon_chat_read(chat_id: str):
             "api_secret": config.api_secret
         })
 
-        resp = await adapter._post("/v2/chat/read", {"chat_id": chat_id})
-        await adapter.close()
-
-        return {"ok": True, "unread_count": resp.get("unread_count", 0)}
+        try:
+            resp = await adapter._post("/v2/chat/read", {"chat_id": chat_id})
+            return {"ok": True, "unread_count": resp.get("unread_count", 0)}
+        except Exception as e:
+            print(f"[Ozon] mark read failed (may be notification chat): {e}")
+            return {"ok": False, "error": str(e)[:100]}
+        finally:
+            await adapter.close()
     finally:
         db.close()
 
@@ -348,4 +352,5 @@ def get_platform_stats(db: Session = Depends(get_db)):
             stats[m.platform]["pending_review"] += 1
 
     return list(stats.values())
+
 
