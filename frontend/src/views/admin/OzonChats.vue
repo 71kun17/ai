@@ -94,8 +94,10 @@ const loadChats = async () => {
   loading.value = false
 }
 
+const markRead = async (chatId: string) => { try { await fetch(`/api/platforms/ozon/chats/${chatId}/read`, { method: 'POST' }) } catch {} }
+
 const selectChat = async (chat: Chat) => {
-  selectedChat.value = chat.chat_id
+  selectedChat.value = chat.chat_id; await markRead(chat.chat_id); chat.unread_count = 0
   loading.value = true
   try {
     const r = await fetch(`/api/platforms/ozon/chats/${chat.chat_id}/messages`)
@@ -155,3 +157,4 @@ onMounted(loadChats)
 .msg-order { font-size: 11px; color: #409eff; margin-top: 4px; }
 .msg-image { font-size: 11px; color: #e6a23c; margin-top: 4px; }
 </style>
+

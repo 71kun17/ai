@@ -289,6 +289,33 @@ async def ozon_chat_messages(chat_id: str, limit: int = 100):
     finally:
         db.close()
 
+
+@router.post("/ozon/chats/{chat_id}/read")
+async def ozon_chat_read(chat_id: str):
+    """标记Ozon聊天为已读，消除红点"""
+    from app.models.database import SessionLocal
+    db = SessionLocal()
+    try:
+        config = db.query(PlatformConfig).filter(
+            PlatformConfig.platform_name == "ozon",
+            PlatformConfig.is_active == True
+        ).first()
+        if not config:
+            return {"ok": False, "error": "Ozon not configured"}
+
+        from app.adapters.ozon import OzonAdapter
+        adapter = OzonAdapter({
+            "api_key": config.api_key,
+            "api_secret": config.api_secret
+        })
+
+        resp = await adapter._post("/v2/chat/read", {"chat_id": chat_id})
+        await adapter.close()
+
+        return {"ok": True, "unread_count": resp.get("unread_count", 0)}
+    finally:
+        db.close()
+
 # ── 统计 ──
 
 @router.get("/stats")
@@ -321,3 +348,4 @@ def get_platform_stats(db: Session = Depends(get_db)):
             stats[m.platform]["pending_review"] += 1
 
     return list(stats.values())
+
