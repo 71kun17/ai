@@ -1,19 +1,14 @@
-﻿"""Ozon Seller API 适配器
+﻿"""Ozon Seller API 聊天适配器
 
-文档: https://docs.ozon.ru/api/seller/
-认证: Client-Id + Api-Key  header
-Base: https://api-seller.ozon.ru
+真实端点 (基于官方文档):
+  POST /v3/chat/list          - 聊天清单
+  POST /v3/chat/history       - 聊天历史
+  POST /v1/chat/send/message  - 发送消息 (需Premium订阅)
+  POST /v1/chat/start         - 创建新聊天
+  POST /v2/chat/read          - 标记已读
 
-已验证端点:
-  POST /v3/product/info/list     - 商品列表
-  POST /v2/posting/fbo/list      - FBO订单
-  POST /v1/report/info           - 报表
-  POST /v1/warehouse/list        - 仓库
-  POST /v1/review/list           - 评价
-
-消息/聊天 API: Ozon 暂未开放 (所有 chat/message 端点返回404)
+认证: Client-Id + Api-Key header
 """
-import time
 from datetime import datetime
 from typing import List
 import httpx
@@ -23,7 +18,7 @@ OZON_API_BASE = "https://api-seller.ozon.ru"
 
 
 class OzonAdapter(BasePlatformAdapter):
-    """Ozon Seller API 适配器"""
+    """Ozon Seller API 聊天适配器"""
 
     @property
     def platform_name(self) -> str:
@@ -51,67 +46,100 @@ class OzonAdapter(BasePlatformAdapter):
         resp.raise_for_status()
         data = resp.json()
         if isinstance(data, dict) and "error" in data:
-            raise Exception(f"Ozon API error: {data.get("message", data["error"])}")
+            raise Exception(f"Ozon error: {data.get("message", data.get("error"))}")
         return data
 
-    # ── 评价管理 ──
-
-    async def get_reviews(self, limit: int = 50) -> list:
-        """获取买家评价列表"""
-        try:
-            resp = await self._post("/v1/review/list", {"limit": limit})
-            return resp.get("result", {}).get("reviews", [])
-        except Exception as e:
-            print(f"[OzonAdapter] get_reviews error: {e}")
-            return []
-
-    async def reply_to_review(self, review_id: str, text: str) -> bool:
-        """回复买家评价"""
-        try:
-            await self._post("/v1/review/comment/create", {
-                "review_id": review_id,
-                "text": text
-            })
-            return True
-        except Exception as e:
-            print(f"[OzonAdapter] reply_to_review error: {e}")
-            return False
-
-    # ── 消息轮询(暂不可用) ──
-
     async def fetch_new_messages(self) -> List[PlatformMessage]:
-        # Ozon 没有卖家-买家聊天API，用评价代替
+        """拉取未读聊天消息"""
         try:
-            reviews = await self.get_reviews(20)
+            # Step 1: 获取未读聊天列表
+            resp = await self._post("/v3/chat/list", {
+                "filter": {
+                    "chat_status": "OPENED",
+                    "unread_only": True
+                },
+                "limit": 50
+            })
+
+            chats = resp.get("chats", [])
+            if not chats:
+                return []
+
             messages = []
-            for rv in reviews:
-                if not rv.get("text"):
+            for ch in chats:
+                chat = ch.get("chat", {})
+                chat_id = chat.get("chat_id", "")
+                if not chat_id:
                     continue
-                messages.append(PlatformMessage(
-                    platform="ozon",
-                    conversation_id=rv.get("id", ""),
-                    message_id=f"review_{rv.get('id')}",
-                    sender="buyer",
-                    content=f"[评价{rv.get('rating')}星] {rv.get('text', '')}",
-                    timestamp=datetime.fromisoformat(
-                        rv.get("created_at", datetime.utcnow().isoformat())
-                        .replace("Z", "+00:00")
-                    ),
-                    buyer_name=rv.get("author", {}).get("name", ""),
-                    order_id=str(rv.get("order_id", "")),
-                    raw_data=rv
-                ))
+
+                # Step 2: 获取聊天历史
+                try:
+                    hist = await self._post("/v3/chat/history", {
+                        "chat_id": chat_id,
+                        "direction": "Backward",
+                        "limit": 20
+                    })
+                except Exception:
+                    continue
+
+                for msg in hist.get("messages", []):
+                    user = msg.get("user", {})
+                    # 只处理买家消息
+                    if user.get("type") not in ("Customer", "customer"):
+                        continue
+
+                    data_parts = msg.get("data", [])
+                    if not data_parts:
+                        continue
+
+                    content = " ".join(str(d) for d in data_parts if isinstance(d, str))
+                    if not content.strip():
+                        continue
+
+                    messages.append(PlatformMessage(
+                        platform="ozon",
+                        conversation_id=chat_id,
+                        message_id=str(msg.get("message_id", "")),
+                        sender="buyer",
+                        content=content,
+                        timestamp=datetime.fromisoformat(
+                            msg.get("created_at", "")
+                                .replace("Z", "+00:00")
+                        ) if msg.get("created_at") else datetime.utcnow(),
+                        buyer_name=user.get("id", ""),
+                        order_id=msg.get("context", {}).get("order_number", ""),
+                        raw_data=msg
+                    ))
+
+            print(f"[OzonAdapter] Fetched {len(messages)} new buyer messages")
             return messages
+
         except Exception as e:
             print(f"[OzonAdapter] fetch_new_messages error: {e}")
             return []
 
     async def send_message(self, conversation_id: str, message: str) -> bool:
-        # 评价回复
-        return await self.reply_to_review(conversation_id, message)
+        """发送消息到买家 (需要Premium Plus/Pro订阅)"""
+        try:
+            await self._post("/v1/chat/send/message", {
+                "chat_id": conversation_id,
+                "text": message
+            })
+            return True
+        except Exception as e:
+            print(f"[OzonAdapter] send_message error: {e}")
+            return False
 
     async def mark_read(self, conversation_id: str) -> bool:
-        return True
+        """标记已读"""
+        try:
+            await self._post("/v2/chat/read", {
+                "chat_id": conversation_id
+            })
+            return True
+        except Exception as e:
+            print(f"[OzonAdapter] mark_read error: {e}")
+            return False
 
     async def refresh_access_token(self) -> bool:
         return True
