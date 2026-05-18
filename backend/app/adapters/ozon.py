@@ -1,4 +1,4 @@
-﻿"""Ozon Seller API 聊天适配器
+"""Ozon Seller API 聊天适配器
 
 真实端点 (基于官方文档):
   POST /v3/chat/list          - 聊天清单

@@ -1,4 +1,4 @@
-﻿import json
+import json
 from fastapi import APIRouter
 from pydantic import BaseModel
 import httpx

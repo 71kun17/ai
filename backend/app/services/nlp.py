@@ -1,4 +1,4 @@
-﻿import json
+import json
 import httpx
 from app.config import settings
 

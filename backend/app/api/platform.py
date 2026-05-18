@@ -1,4 +1,4 @@
-﻿"""多平台管理API"""
+"""多平台管理API"""
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session

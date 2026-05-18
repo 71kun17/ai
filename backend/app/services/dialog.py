@@ -1,4 +1,4 @@
-﻿import httpx
+import httpx
 from functools import lru_cache
 from app.config import settings
 from app.services.vector_store import vector_store
