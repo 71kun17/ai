@@ -33,7 +33,11 @@
       </el-input>
       <div style="margin-top:6px;text-align:right">
         <el-button v-if="!isHandoff" size="small" type="warning" plain @click="requestHandoff">{{ t.handoff }}</el-button>
-        <el-tag v-else type="success" size="small">{{ t.handoffActive }}</el-tag>
+        <template v-else-if="!isResolved">
+          <el-tag type="success" size="small">{{ t.handoffActive }}</el-tag>
+          <el-button size="small" type="danger" plain @click="endSession" style="margin-left:8px">{{ t.endSession }}</el-button>
+        </template>
+        <el-tag v-else type="info" size="small">{{ t.sessionEndedTag }}</el-tag>
       </div>
     </div>
   </div>
@@ -57,6 +61,7 @@ const messages = ref<Message[]>([])
 const input = ref('')
 const loading = ref(false)
 const isHandoff = ref(false)
+const isResolved = ref(false)
 const msgList = ref<HTMLElement>()
 const lastPollId = ref(0)
 let pollTimer: ReturnType<typeof setInterval> | null = null
@@ -77,6 +82,8 @@ const translations: Record<string, Record<string, string>> = {
     handoffConnected: '🔔 人工客服已接入，请直接发送您的问题',
     errorMsg: '抱歉，服务暂时不可用，请稍后再试。',
     sessionEnded: '🔔 会话已结束，感谢您的咨询。如需帮助请重新发起对话。',
+    endSession: '结束会话',
+    sessionEndedTag: '会话已结束',
   },
   en: {
     header: 'AI Customer Service',
@@ -93,6 +100,8 @@ const translations: Record<string, Record<string, string>> = {
     handoffConnected: '🔔 A human agent has joined. Please send your question directly.',
     errorMsg: 'Sorry, service is temporarily unavailable. Please try again later.',
     sessionEnded: '🔔 Session ended. Thank you. Start a new chat if you need help.',
+    endSession: 'End Session',
+    sessionEndedTag: 'Session Ended',
   },
   ja: {
     header: 'AIカスタマーサービス',
@@ -109,6 +118,8 @@ const translations: Record<string, Record<string, string>> = {
     handoffConnected: '🔔 オペレーターが接続しました。直接ご質問をお送りください',
     errorMsg: '申し訳ございません。一時的にサービスがご利用いただけません。',
     sessionEnded: '🔔 セッションが終了しました。新しいチャットを開始してください。',
+    endSession: 'セッション終了',
+    sessionEndedTag: 'セッション終了',
   },
   ko: {
     header: 'AI 고객 서비스',
@@ -228,6 +239,8 @@ const startPolling = () => {
           messages.value.push({ role: 'system', content: t.value.handoffConnected })
         } else if (m.role === 'system' && m.content.includes('结束')) {
           messages.value.push({ role: 'system', content: t.value.sessionEnded })
+          isResolved.value = true
+          stopPolling()
         }
       }
       if (newMsgs.length > 0) {
@@ -292,6 +305,21 @@ const requestHandoff = () => {
     ko: '상담원 연결', fr: 'Parler à un humain', es: 'Hablar con un humano', de: 'Mitarbeiter sprechen'
   }
   send(texts[lang.value] || '转人工客服')
+}
+
+const endSession = async () => {
+  try {
+    await fetch(`/api/chat/handoff/resolve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId, admin_name: 'user' })
+    })
+    isResolved.value = true
+    messages.value.push({ role: 'system', content: t.value.sessionEnded })
+    stopPolling()
+    await nextTick()
+    scrollBottom()
+  } catch {}
 }
 
 const renderMarkdown = (text: string) => md.render(text)
