@@ -79,7 +79,7 @@ async def send_message(req: ChatRequest, db: Session = Depends(get_db)):
             HandoffSession.session_id == session_id
         ).first()
         if not existing:
-            db.add(HandoffSession(session_id=session_id, status="waiting"))
+            db.add(HandoffSession(session_id=session_id, status="waiting", lang=req.lang))
             db.add(HandoffMessage(session_id=session_id, role="system", content="用户请求转人工客服"))
             db.commit()
 
@@ -131,6 +131,7 @@ def handoff_queue(db: Session = Depends(get_db)):
             "session_id": h.session_id,
             "status": h.status,
             "admin_name": h.admin_name,
+            "lang": h.lang or "zh",
             "created_at": h.created_at.isoformat(),
             "updated_at": h.updated_at.isoformat(),
             "last_message": last_msg.content if last_msg else "",

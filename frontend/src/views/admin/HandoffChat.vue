@@ -20,6 +20,7 @@
           </el-tag>
           <span style="font-size:12px;color:#909399">{{ item.session_id.slice(0, 8) }}</span>
         </div>
+        <div style="font-size:11px;color:#909399;margin-bottom:2px">{{ langLabel(item.lang) }}</div>
         <div class="queue-item-msg">{{ item.last_message || '(暂无消息)' }}</div>
         <div style="font-size:11px;color:#c0c4cc">{{ item.updated_at?.slice(11, 19) }}</div>
       </div>
@@ -33,7 +34,7 @@
       </template>
       <template v-else>
         <div class="chat-panel-header">
-          <span>{{ selectedSession }} <span style="color:#909399;font-size:12px">| {{ currentStatus === 'waiting' ? '等待接入' : currentStatus === 'active' ? '对话中' : '已结束' }}</span></span>
+          <span>{{ selectedSession.slice(0, 12) }}... <span style="color:#909399;font-size:12px">| {{ currentStatus === 'waiting' ? '等待接入' : currentStatus === 'active' ? '对话中' : '已结束' }} | {{ currentLang ? langLabel(currentLang) : '' }}</span></span>
           <div style="display:flex;gap:8px">
             <el-button v-if="currentStatus === 'waiting'" type="primary" size="small" @click="takeover">接入</el-button>
             <el-button v-if="currentStatus === 'active'" type="warning" size="small" @click="resolve">结束会话</el-button>
@@ -74,6 +75,7 @@ interface QueueItem {
   session_id: string
   status: string
   admin_name: string
+  lang: string
   created_at: string
   updated_at: string
   last_message: string
@@ -89,6 +91,7 @@ interface HandoffMsg {
 const queue = ref<QueueItem[]>([])
 const selectedSession = ref('')
 const currentStatus = ref('')
+const currentLang = ref('')
 const messages = ref<HandoffMsg[]>([])
 const replyText = ref('')
 const msgContainer = ref<HTMLElement>()
@@ -115,6 +118,7 @@ const fetchMessages = async () => {
 const selectSession = async (item: QueueItem) => {
   selectedSession.value = item.session_id
   currentStatus.value = item.status
+  currentLang.value = item.lang || 'zh'
   await fetchMessages()
 }
 
@@ -157,6 +161,12 @@ const resolve = async () => {
     await fetchMessages()
   } catch {}
 }
+
+const langLabels: Record<string, string> = {
+  zh: '🇨🇳 中文', en: '🇺🇸 English', ja: '🇯🇵 日本語',
+  ko: '🇰🇷 한국어', fr: '🇫🇷 Français', es: '🇪🇸 Español', de: '🇩🇪 Deutsch'
+}
+const langLabel = (lang: string) => langLabels[lang] || '🇨🇳 中文'
 
 const scrollBottom = () => {
   if (msgContainer.value) {

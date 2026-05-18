@@ -8,6 +8,7 @@ class HandoffSession(Base):
     session_id = Column(String(64), nullable=False, unique=True, index=True)
     status = Column(String(20), default='waiting')  # waiting / active / resolved
     admin_name = Column(String(100), default='')
+    lang = Column(String(10), default='zh')
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

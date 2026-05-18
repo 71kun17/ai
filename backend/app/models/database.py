@@ -20,6 +20,17 @@ def init_db():
     import app.models.platform
     import app.models.handoff
     Base.metadata.create_all(bind=engine)
+
+    # Migration: add lang column to handoff_sessions if not exists
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            cols = [row[1] for row in conn.execute(text("PRAGMA table_info(handoff_sessions)")).fetchall()]
+            if 'lang' not in cols:
+                conn.execute(text("ALTER TABLE handoff_sessions ADD COLUMN lang VARCHAR(10) DEFAULT 'zh'"))
+                conn.commit()
+    except Exception:
+        pass
     from app.services.vector_store import vector_store
     from app.models.knowledge import Knowledge
     db = SessionLocal()
