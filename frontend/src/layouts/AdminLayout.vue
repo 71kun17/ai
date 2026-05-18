@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-container style="height:100vh">
     <el-aside width="220px" style="background:#304156;overflow-y:auto">
       <div style="color:#fff;padding:20px 16px;font-size:18px;font-weight:600;text-align:center;border-bottom:1px solid #4a5568">
@@ -30,6 +30,9 @@
             <el-icon><Connection /></el-icon>
             <span>{{ ts.platforms }}</span>
           </template>
+          <el-menu-item index="/admin/ozon-chats">
+            💬 Ozon聊天
+          </el-menu-item>
           <el-menu-item index="/admin/platforms/config">{{ ts.platConfig }}</el-menu-item>
           <el-menu-item index="/admin/platforms/review">
             {{ ts.platReview }}
@@ -103,6 +106,7 @@ const pageTitle = computed(() => (titleMap[route.path] || {})[lang.value] || tit
 watch(lang, (v) => { Object.assign(ts, langMessages[v]) })
 
 </script>
+
 
 
 

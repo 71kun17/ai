@@ -20,6 +20,7 @@ const router = createRouter({
         { path: 'store-profile', component: () => import('@/views/admin/StoreProfileView.vue') },
         { path: 'config', component: () => import('@/views/admin/ConfigView.vue') },
         { path: 'handoff', component: () => import('@/views/admin/HandoffChat.vue') },
+        { path: 'ozon-chats', component: () => import('@/views/admin/OzonChats.vue') },
         { path: 'platforms/config', component: () => import('@/views/admin/PlatformConfigView.vue') },
         { path: 'platforms/review', component: () => import('@/views/admin/PlatformReviewView.vue') },
         { path: 'platforms/stats', component: () => import('@/views/admin/PlatformStatsView.vue') },
@@ -29,4 +30,5 @@ const router = createRouter({
   ]
 })
 export default router
+
 

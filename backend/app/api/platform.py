@@ -1,4 +1,4 @@
-"""多平台管理API"""
+﻿"""多平台管理API"""
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -190,6 +190,104 @@ def reject_review(message_id: int, db: Session = Depends(get_db)):
 
     return {"ok": True}
 
+
+
+# ── Ozon 聊天查看 ──
+
+@router.get("/ozon/chats")
+async def ozon_chat_list(limit: int = 50):
+    """从Ozon拉取聊天列表"""
+    from app.models.database import SessionLocal
+    db = SessionLocal()
+    try:
+        config = db.query(PlatformConfig).filter(
+            PlatformConfig.platform_name == "ozon",
+            PlatformConfig.is_active == True
+        ).first()
+        if not config:
+            return {"chats": [], "error": "Ozon not configured"}
+
+        from app.adapters.ozon import OzonAdapter
+        adapter = OzonAdapter({
+            "api_key": config.api_key,
+            "api_secret": config.api_secret
+        })
+
+        resp = await adapter._post("/v3/chat/list", {
+            "filter": {"chat_status": "OPENED"},
+            "limit": limit
+        })
+        await adapter.close()
+
+        chats = []
+        for ch in resp.get("chats", []):
+            c = ch.get("chat", {})
+            chats.append({
+                "chat_id": c.get("chat_id"),
+                "chat_type": c.get("chat_type"),
+                "chat_status": c.get("chat_status"),
+                "created_at": c.get("created_at"),
+                "unread_count": ch.get("unread_count", 0),
+                "last_message_id": ch.get("last_message_id"),
+            })
+
+        return {
+            "chats": chats,
+            "total_unread_count": resp.get("total_unread_count", 0),
+            "has_next": resp.get("has_next", False)
+        }
+    finally:
+        db.close()
+
+
+@router.get("/ozon/chats/{chat_id}/messages")
+async def ozon_chat_messages(chat_id: str, limit: int = 100):
+    """从Ozon拉取指定聊天的消息历史"""
+    from app.models.database import SessionLocal
+    db = SessionLocal()
+    try:
+        config = db.query(PlatformConfig).filter(
+            PlatformConfig.platform_name == "ozon",
+            PlatformConfig.is_active == True
+        ).first()
+        if not config:
+            return {"messages": [], "error": "Ozon not configured"}
+
+        from app.adapters.ozon import OzonAdapter
+        adapter = OzonAdapter({
+            "api_key": config.api_key,
+            "api_secret": config.api_secret
+        })
+
+        resp = await adapter._post("/v3/chat/history", {
+            "chat_id": chat_id,
+            "direction": "Backward",
+            "limit": limit
+        })
+        await adapter.close()
+
+        messages = []
+        for m in resp.get("messages", []):
+            user = m.get("user", {})
+            data_parts = m.get("data", [])
+            content = " ".join(str(d) for d in data_parts if isinstance(d, str))
+            messages.append({
+                "message_id": str(m.get("message_id", "")),
+                "user_type": user.get("type", "unknown"),
+                "user_id": str(user.get("id", "")),
+                "content": content,
+                "is_read": m.get("is_read", False),
+                "created_at": m.get("created_at"),
+                "is_image": m.get("is_image", False),
+                "order_number": m.get("context", {}).get("order_number", ""),
+            })
+
+        return {
+            "messages": messages,
+            "has_next": resp.get("has_next", False)
+        }
+    finally:
+        db.close()
 
 # ── 统计 ──
 
