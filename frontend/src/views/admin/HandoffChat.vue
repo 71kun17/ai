@@ -2,7 +2,7 @@
   <div class="handoff-container">
     <div class="queue-panel">
       <h3 style="margin:0 0 12px 0;font-size:15px">
-        👥 等待列表
+        <el-icon style="margin-right:4px"><UserFilled /></el-icon> 等待列表
         <el-badge v-if="queue.length" :value="queue.length" style="margin-left:4px" />
       </h3>
       <div v-if="queue.length === 0" style="text-align:center;color:#909399;padding:30px 0">
@@ -46,7 +46,10 @@
               <div class="h-system">{{ msg.content }}</div>
             </template>
             <template v-else>
-              <div class="h-avatar">{{ msg.role === 'user' ? '👤' : '🎧' }}</div>
+              <div class="h-avatar">
+                <el-icon v-if="msg.role === 'user'" :size="16"><User /></el-icon>
+                <el-icon v-else :size="16"><Headset /></el-icon>
+              </div>
               <div class="h-bubble">{{ msg.content }}</div>
             </template>
           </div>

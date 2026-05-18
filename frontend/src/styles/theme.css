@@ -1,0 +1,72 @@
+:root {
+  --c-primary: #1a73e8;
+  --c-primary-light: #e8f0fe;
+  --c-primary-hover: #1557b0;
+  --c-sidebar: #f8f9fa;
+  --c-sidebar-text: #202124;
+  --c-sidebar-active: #e8f0fe;
+  --c-bg: #f1f3f4;
+  --c-card: #ffffff;
+  --c-text: #202124;
+  --c-text-secondary: #5f6368;
+  --c-border: #e0e0e0;
+  --c-danger: #ea4335;
+  --c-success: #34a853;
+  --c-warning: #fbbc04;
+  --font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "Segoe UI", sans-serif;
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  color: var(--c-text);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Element Plus overrides */
+:root {
+  --el-color-primary: var(--c-primary);
+  --el-color-primary-light-3: #4d94ed;
+  --el-color-primary-light-5: #7ab0f2;
+  --el-color-primary-light-7: #a8ccf7;
+  --el-color-primary-light-8: #c5ddf9;
+  --el-color-primary-light-9: #e2eefc;
+  --el-color-primary-dark-2: #1557b0;
+  --el-border-radius-base: var(--radius-sm);
+  --el-font-family: var(--font-family);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--c-primary);
+  --el-button-border-color: var(--c-primary);
+  --el-button-hover-bg-color: var(--c-primary-hover);
+  --el-button-hover-border-color: var(--c-primary-hover);
+}
+
+/* Global utility */
+.clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.card-hover {
+  transition: box-shadow var(--transition-normal), transform var(--transition-fast);
+}
+.card-hover:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c4c7cc; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a0a4a9; }

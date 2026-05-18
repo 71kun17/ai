@@ -1,7 +1,10 @@
 ﻿<template>
   <div class="chat-container">
     <div class="chat-header">
-      <span>{{ isHandoff ? '🎧' : '🤖' }} {{ isHandoff ? t.handoffTitle : t.header }}</span>
+      <span>
+        <el-icon :size="20" style="margin-right:6px;vertical-align:middle"><component :is="isHandoff ? HeadsetIcon : ChatDotRoundIcon" /></el-icon>
+        {{ isHandoff ? t.handoffTitle : t.header }}
+      </span>
       <el-select v-model="lang" size="small" style="width:110px">
         <el-option v-for="l in languages" :key="l.value" :label="l.label" :value="l.value" />
       </el-select>
@@ -15,13 +18,17 @@
         </div>
       </div>
       <div v-for="(msg, i) in messages" :key="i" :class="['msg-row', msg.role]">
-        <div class="avatar">{{ msg.role === 'user' ? '👤' : msg.role === 'admin' ? '🎧' : '🤖' }}</div>
+        <div class="avatar">
+          <el-icon v-if="msg.role === 'user'" :size="18"><User /></el-icon>
+          <el-icon v-else-if="msg.role === 'admin'" :size="18"><Headset /></el-icon>
+          <el-icon v-else :size="18"><ChatDotRound /></el-icon>
+        </div>
         <div class="msg-content">
           <div class="bubble" v-html="renderMarkdown(msg.content)" />
         </div>
       </div>
       <div v-if="loading" class="msg-row assistant">
-        <div class="avatar">🤖</div>
+        <div class="avatar"><el-icon :size="18"><ChatDotRound /></el-icon></div>
         <div class="msg-content"><div class="bubble typing">{{ t.typing }}</div></div>
       </div>
     </div>
@@ -48,6 +55,9 @@ import { ref, computed, nextTick, onUnmounted } from 'vue'
 import { chatApi } from '@/api'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownIt from 'markdown-it'
+import { ChatDotRound, Headset, User } from '@element-plus/icons-vue'
+const ChatDotRoundIcon = ChatDotRound
+const HeadsetIcon = Headset
 
 const md = new MarkdownIt({ breaks: true })
 
@@ -339,7 +349,7 @@ onUnmounted(() => {
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 .chat-header {
-  background: linear-gradient(135deg, #409eff, #337ecc); color: #fff;
+  background: var(--c-primary); color: #fff;
   padding: 14px 20px; font-size: 17px; font-weight: 600;
   display: flex; justify-content: space-between; align-items: center;
 }
@@ -347,14 +357,15 @@ onUnmounted(() => {
 .welcome { text-align: center; padding: 40px 20px; color: #606266; }
 .welcome h3 { margin-bottom: 8px; }
 .quick-questions { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.quick-tag { cursor: pointer; padding: 6px 14px; font-size: 13px; }
+.quick-tag { cursor: pointer; padding: 6px 14px; font-size: 13px; transition: all var(--transition-fast); }
+.quick-tag:hover { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
 .msg-row { display: flex; margin-bottom: 16px; gap: 10px; }
 .msg-row.user { flex-direction: row-reverse; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; background: #e4e7ed; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: #e8eaed; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; color: var(--c-text-secondary); }
 .msg-content { max-width: 75%; }
-.msg-row.user .bubble { background: #409eff; color: #fff; border-radius: 14px 4px 14px 14px; }
+.msg-row.user .bubble { background: var(--c-primary); color: #fff; border-radius: 14px 4px 14px 14px; }
 .msg-row.assistant .bubble { background: #fff; border-radius: 4px 14px 14px 14px; }
-.msg-row.admin .bubble { background: #f0f9eb; border: 1px solid #c6e2c0; border-radius: 4px 14px 14px 14px; }
+.msg-row.admin .bubble { background: #f0f9eb; border: 1px solid var(--c-success); border-radius: 4px 14px 14px 14px; opacity: 0.7; }
 .msg-row.system .bubble { background: #fdf6ec; color: #e6a23c; border-radius: 8px; font-size: 13px; text-align: center; }
 .bubble { padding: 10px 16px; word-break: break-word; font-size: 14px; line-height: 1.6; }
 .typing { color: #909399; font-style: italic; }

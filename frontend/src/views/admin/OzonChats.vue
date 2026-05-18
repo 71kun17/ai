@@ -2,7 +2,7 @@
   <div class="ozon-container">
     <div class="ozon-sidebar">
       <div style="padding:12px;border-bottom:1px solid #e4e7ed;display:flex;justify-content:space-between;align-items:center">
-        <h3 style="margin:0;font-size:15px">💬 Ozon 聊天</h3>
+        <h3 style="margin:0;font-size:15px"> Ozon 聊天</h3>
         <el-button size="small" @click="loadChats" :loading="loading">刷新</el-button>
       </div>
       <div style="padding:8px 12px;font-size:12px;color:#909399">
