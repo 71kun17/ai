@@ -310,10 +310,23 @@ async def ozon_chat_read(chat_id: str):
         })
 
         try:
-            resp = await adapter._post("/v2/chat/read", {"chat_id": chat_id})
-            return {"ok": True, "unread_count": resp.get("unread_count", 0)}
+            # 先获取最新消息ID
+            hist = await adapter._post("/v3/chat/history", {
+                "chat_id": chat_id,
+                "direction": "Backward",
+                "limit": 1
+            })
+            msgs = hist.get("messages", [])
+            if msgs:
+                from_message_id = int(msgs[0]["message_id"])
+                resp = await adapter._post("/v2/chat/read", {
+                    "chat_id": chat_id,
+                    "from_message_id": from_message_id
+                })
+                return {"ok": True, "unread_count": resp.get("unread_count", 0)}
+            return {"ok": True, "unread_count": 0}
         except Exception as e:
-            print(f"[Ozon] mark read failed (may be notification chat): {e}")
+            print(f"[Ozon] mark read failed: {str(e)[:100]}")
             return {"ok": False, "error": str(e)[:100]}
         finally:
             await adapter.close()
@@ -352,5 +365,6 @@ def get_platform_stats(db: Session = Depends(get_db)):
             stats[m.platform]["pending_review"] += 1
 
     return list(stats.values())
+
 
 
