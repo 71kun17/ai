@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 280px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 16px; background: #fff; }
+    h2 { font-size: 15px; margin-bottom: 12px; color: #303133; }
+    .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    label { font-size: 13px; color: #606266; }
+    select { padding: 4px 8px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; }
+    .toggle { position: relative; width: 44px; height: 24px; }
+    .toggle input { display: none; }
+    .toggle .slider { position: absolute; inset: 0; background: #c0c4cc; border-radius: 12px; cursor: pointer; transition: .3s; }
+    .toggle .slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+    .toggle input:checked + .slider { background: #409eff; }
+    .toggle input:checked + .slider::before { transform: translateX(20px); }
+    .status { font-size: 12px; color: #909399; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ebeef5; }
+    .status.ok { color: #67c23a; }
+    .status.err { color: #f56c6c; }
+  </style>
+</head>
+<body>
+  <h2>🤖 AI客服助手</h2>
+  
+  <div class="row">
+    <label>自动回复</label>
+    <label class="toggle"><input type="checkbox" id="toggle" checked><span class="slider"></span></label>
+  </div>
+
+  <div class="row">
+    <label>回复语言</label>
+    <select id="lang">
+      <option value="zh">中文</option>
+      <option value="en">English</option>
+      <option value="ja">日本語</option>
+      <option value="ko">한국어</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+    </select>
+  </div>
+
+  <div class="status ok" id="status">✅ 后端已连接</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

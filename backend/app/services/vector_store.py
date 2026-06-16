@@ -1,4 +1,4 @@
-﻿import pickle
+import pickle
 import os
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer

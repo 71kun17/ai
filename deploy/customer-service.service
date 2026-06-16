@@ -6,6 +6,7 @@ After=network.target
 Type=simple
 User=www-data
 WorkingDirectory=/opt/customer-service/backend
+ExecStartPre=/bin/bash -c 'chown -R www-data:www-data /opt/customer-service/backend/data 2>/dev/null; chmod -R 755 /opt/customer-service/backend/data 2>/dev/null; chmod 644 /opt/customer-service/backend/data/customer_service.db 2>/dev/null'
 ExecStart=/opt/customer-service/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 Restart=always
 RestartSec=3
